@@ -5,4 +5,8 @@
 * 個人制作のalpha版です。問題や不具合があればお知らせ下さい
 
 
+## 設定項目
+
+
+<img width="450" height="744" alt="スクリーンショット 2025-12-24 17 34 05" src="https://github.com/user-attachments/assets/c5d805fc-0b46-4e0e-8287-d5573a550b5e" />
 
