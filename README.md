@@ -5,6 +5,13 @@
 個人制作のalpha版です。問題や不具合があればお知らせ下さい
 
 
+## 作例
+
+<img width="722" height="752" alt="スクリーンショット 2025-12-24 17 33 49" src="https://github.com/user-attachments/assets/dc6d7ec7-7d10-442b-8ee6-7b9755f25360" />
+
+<img width="958" height="754" alt="スクリーンショット 2025-12-24 17 27 38" src="https://github.com/user-attachments/assets/03b9c254-441e-436f-81e5-7921bae4b77c" />
+
+
 ## 設定項目
 
 <img width="450" height="744" alt="スクリーンショット 2025-12-24 17 34 05" src="https://github.com/user-attachments/assets/c5d805fc-0b46-4e0e-8287-d5573a550b5e" />
@@ -23,3 +30,5 @@
 #### グラデーション
 * シェイプのサイズを、一定の範囲内で変化させます
 * グラデーションの方向の角度、始点と終点の濃度を指定します
+#### 設定値を出力
+* 設定項目をテキストとしてパターンと一緒に出力します
