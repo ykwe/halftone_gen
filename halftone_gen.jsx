@@ -1,5 +1,13 @@
 /*
-    ハーフトーン生成スクリプト V4.0
+    ハーフトーン生成スクリプト V2.0 (Official)
+    
+    [機能一覧]
+    - ドット個数: 縦・横の個数を指定
+    - シェイプ設定: 丸/四角、サイズ、間隔、シェイプの回転
+    - パターン: 千鳥配置(ON/OFF)、行の傾斜、列の傾斜
+    - ランダム: 位置、サイズ、回転のゆらぎ
+    - グラデーション: 角度指定、変形モード(通常/幅のみ/高さのみ)
+    - ログ出力: 設定値をテキストとして自動生成
     
     Created by Gemini for Adobe Illustrator
 */
@@ -13,7 +21,7 @@
     // =========================================================
     // 1. UI構築
     // =========================================================
-    var dialog = new Window("dialog", "ハーフトーン生成 V4.0");
+    var dialog = new Window("dialog", "ハーフトーン生成 V2.0");
     dialog.orientation = "column";
     dialog.alignChildren = ["fill", "top"];
     dialog.spacing = 10;
@@ -47,23 +55,25 @@
     panelShape.orientation = "column";
     panelShape.alignChildren = ["left", "top"];
 
-    // 形状
+    // 1. 形状選択
     var grpShapeType = panelShape.add("group");
     var rbCircle = grpShapeType.add("radiobutton", undefined, "丸");
     var rbRect = grpShapeType.add("radiobutton", undefined, "四角");
     rbCircle.value = true;
 
-    // サイズ
+    // 2. サイズ入力
     var grpSizeInputs = panelShape.add("group");
     grpSizeInputs.orientation = "stack";
     grpSizeInputs.alignChildren = ["left", "center"];
 
+    // 丸用
     var grpCircleInput = grpSizeInputs.add("group");
     grpCircleInput.add("statictext", undefined, "直径:");
     var inputDiameter = grpCircleInput.add("edittext", undefined, "10");
     inputDiameter.characters = 5;
     grpCircleInput.add("statictext", undefined, "pt");
 
+    // 四角用
     var grpRectInput = grpSizeInputs.add("group");
     grpRectInput.add("statictext", undefined, "幅:");
     var inputRectW = grpRectInput.add("edittext", undefined, "10");
@@ -83,14 +93,14 @@
         grpRectInput.visible = true;
     }
 
-    // 間隔
+    // 3. 間隔
     var grpPitch = panelShape.add("group");
     grpPitch.add("statictext", undefined, "間隔:");
     var inputPitch = grpPitch.add("edittext", undefined, "15");
     inputPitch.characters = 5;
     grpPitch.add("statictext", undefined, "pt");
 
-    // シェイプの回転
+    // 4. シェイプの回転
     var gIndivRot = panelShape.add("group");
     gIndivRot.add("statictext", undefined, "シェイプの回転:");
     var inputIndivRot = gIndivRot.add("edittext", undefined, "0");
@@ -103,13 +113,13 @@
     panelPattern.orientation = "column";
     panelPattern.alignChildren = ["left", "top"];
     
-    // 千鳥配置
+    // 千鳥配置 (デフォルトOFF)
     var grpPatRow1 = panelPattern.add("group");
     grpPatRow1.orientation = "row";
     var cbStagger = grpPatRow1.add("checkbox", undefined, "千鳥配置にする");
     cbStagger.value = false;
 
-    // 傾斜設定 (2行に分離)
+    // 傾斜設定
     var grpPatRow2 = panelPattern.add("group");
     grpPatRow2.orientation = "row";
     grpPatRow2.alignChildren = ["left", "center"];
@@ -120,9 +130,9 @@
     inputRowShear.characters = 4;
     grpPatRow2.add("statictext", undefined, "°");
 
-    grpPatRow2.add("statictext", undefined, "   "); // スペース
+    grpPatRow2.add("statictext", undefined, "   ");
 
-    // 列の傾斜 [V4追加]
+    // 列の傾斜
     grpPatRow2.add("statictext", undefined, "列の傾斜:");
     var inputColShear = grpPatRow2.add("edittext", undefined, "0");
     inputColShear.characters = 4;
@@ -228,10 +238,11 @@
 
     var isStagger = cbStagger.value;
     
-    // 傾斜角度の取得
+    // 傾斜
     var rowShearAngle = parseFloat(inputRowShear.text) || 0;
-    var colShearAngle = parseFloat(inputColShear.text) || 0; // 追加
+    var colShearAngle = parseFloat(inputColShear.text) || 0;
 
+    // ランダム
     var randJitter = parseFloat(inputJitter.text) || 0;
     var randSizePt = parseFloat(inputRandSize.text) || 0;
     var randRot = parseFloat(inputRandRot.text) || 0;
@@ -264,7 +275,6 @@
     }
     logContent += "[シェイプ]  " + shapeStr + " / 間隔: " + pitch + " pt / シェイプ回転: " + indivRotation + "°\r";
 
-    // ログに行と列の傾斜を記載
     logContent += "[パターン]  千鳥配置: " + (isStagger ? "ON" : "OFF") + " / 行の傾斜: " + rowShearAngle + "° / 列の傾斜: " + colShearAngle + "°\r";
 
     var randStr = "";
@@ -289,14 +299,11 @@
 
 
     // =========================================================
-    // 4. 描画ロジック準備
+    // 4. 計算ロジック
     // =========================================================
-    
-    // 行の傾斜 (横ラインの傾き = X移動に伴うYシフト)
     var rowShearRad = rowShearAngle * (Math.PI / 180);
     var rowShearFactor = Math.tan(rowShearRad); 
 
-    // 列の傾斜 (縦ラインの傾き = Y移動に伴うXシフト)
     var colShearRad = colShearAngle * (Math.PI / 180);
     var colShearFactor = Math.tan(colShearRad);
 
@@ -304,31 +311,20 @@
     var cos = Math.cos(rad);
     var sin = Math.sin(rad);
 
-    // バウンディングボックスの計算 (2軸傾斜対応)
     var p1 = {x: 0, y: 0};
     
     var gridWidth = (cols - 1) * pitch;
-    var gridHeightVisual = -(rows - 1) * pitch; // Yは下に行くほどマイナス
+    var gridHeightVisual = -(rows - 1) * pitch;
 
-    // P2 (Top-Right): X=Width. 
-    // 行傾斜によるYズレ = Width * rowTan
-    // 列傾斜によるXズレ = 0 * colTan = 0 (Y=0なので)
+    // バウンディングボックス計算 (2軸傾斜)
     var p2 = {
         x: gridWidth, 
         y: gridWidth * rowShearFactor
     };
-
-    // P3 (Bottom-Left): Y=Height.
-    // 行傾斜によるYズレ = 0 * rowTan = 0
-    // 列傾斜によるXズレ = Height * colTan
     var p3 = {
         x: gridHeightVisual * colShearFactor,
         y: gridHeightVisual
     };
-
-    // P4 (Bottom-Right): X=Width, Y=Height.
-    // X = Width + (Height * colTan)
-    // Y = Height + (Width * rowTan)
     var p4 = {
         x: gridWidth + (gridHeightVisual * colShearFactor),
         y: gridHeightVisual + (gridWidth * rowShearFactor)
@@ -369,21 +365,21 @@
                 baseX += (pitch / 2);
             }
 
-            // 行の傾斜適用 (X座標に応じてYをずらす)
+            // 行と列の傾斜計算
             var shiftY = baseX * rowShearFactor;
-            
-            // 列の傾斜適用 (Y座標に応じてXをずらす)
             var shiftX = baseY * colShearFactor;
 
             var gridX = baseX + shiftX;
             var gridY = baseY + shiftY;
 
+            // 位置の乱れ
             var jitterX = (Math.random() - 0.5) * 2 * randJitter;
             var jitterY = (Math.random() - 0.5) * 2 * randJitter;
             
             var finalX = gridX + jitterX;
             var finalY = gridY + jitterY;
 
+            // グラデーション計算
             var scale = 1.0;
             if (useGradient) {
                 var currProj = gridX * cos + gridY * sin;
@@ -393,6 +389,7 @@
                 scale = startDensity + t * (endDensity - startDensity);
             }
 
+            // 変形モード
             var scaleW = scale;
             var scaleH = scale;
             if (scaleMode === 1) { scaleW = scale; scaleH = 1.0; }
@@ -401,15 +398,16 @@
             var currentW = (isCircleMode ? baseDiameter : baseRectW) * scaleW;
             var currentH = (isCircleMode ? baseDiameter : baseRectH) * scaleH;
 
+            // サイズの乱れ
             if (randSizePt !== 0) {
                 var addPt = (Math.random() - 0.5) * 2 * randSizePt;
                 currentW += addPt;
                 currentH += addPt;
             }
 
+            // 極小サイズ防止
             if (currentW < 0.1) currentW = 0.1;
             if (currentH < 0.1) currentH = 0.1;
-
             if (currentW < 0.1 || currentH < 0.1) continue;
 
             var newItem; 
@@ -433,6 +431,7 @@
             newItem.fillColor = blackColor;
             newItem.stroked = false;
 
+            // 回転の乱れ
             var finalRotation = indivRotation;
             if (randRot !== 0) {
                 finalRotation += (Math.random() - 0.5) * 2 * randRot;
