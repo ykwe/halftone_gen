@@ -1,5 +1,5 @@
 /*
-    ハーフトーン生成スクリプト V2.0 (Official)
+    ハーフトーン生成スクリプト V2.0
     
     [機能一覧]
     - ドット個数: 縦・横の個数を指定
@@ -9,7 +9,10 @@
     - グラデーション: 角度指定、変形モード(通常/幅のみ/高さのみ)
     - ログ出力: 設定値をテキストとして自動生成
     
-    Created by Gemini for Adobe Illustrator
+    Created by ykwe with Gemini for Adobe Illustrator
+    This is a personally developed alpha version.
+    We apologize for any bugs or issues that may occur.
+    We cannot be held responsible for any problems.
 */
 
 (function() {
